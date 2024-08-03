@@ -19,16 +19,20 @@ def translation_list(request):
             serializer.save()
             return Response(serializer.data , status= status.HTTP_201_CREATED)
         
-@api_view(['GET','PUT','DELETE'])
+@api_view(['GET','DELETE'])
 def translation_details(request,id):
     try:
         translation = Translation.objects.get(pk=id)
     except Translation.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status = status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         serializer = TranslationSerializer(translation)
         return Response(serializer.data)
+    elif request.method == 'DELETE':
+        translation.delete()
+        return Response(status = status.HTTP_204_NO_CONTENT)
+    
 
     
     
