@@ -6,4 +6,4 @@ def translation_list(request):
     # get all translations 
     translations =Translation.objects.all()
     serializer =TranslationSerializer(translations,many=True)
-    return JsonResponse(serializer.data, safe=False)
+    return JsonResponse({"Translations" :serializer.data}, safe=False)
