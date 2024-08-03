@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,6 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-94bgigk$ul&b7xy!_^j8a8*xdr5y8+6^e+r%jq=&$5*^mv!h2+'
+# add google Cloud credentails
+# Base directory of the project
+BASE_DIR = Path(__file__).resolve().parent.parent
+GOOGLE_APPLICATION_CREDENTIALS_PATH = BASE_DIR / 'credentials.json'
+
+if not GOOGLE_APPLICATION_CREDENTIALS_PATH.exists():
+    raise FileNotFoundError(f"Google Cloud credentials file not found at {GOOGLE_APPLICATION_CREDENTIALS_PATH}")
+
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(GOOGLE_APPLICATION_CREDENTIALS_PATH)
+
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
