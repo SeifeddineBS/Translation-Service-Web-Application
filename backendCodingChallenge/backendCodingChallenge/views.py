@@ -18,3 +18,17 @@ def translation_list(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data , status= status.HTTP_201_CREATED)
+        
+@api_view(['GET','PUT','DELETE'])
+def translation_details(request,id):
+    try:
+        translation = Translation.objects.get(pk=id)
+    except Translation.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = TranslationSerializer(translation)
+        return Response(serializer.data)
+
+    
+    

@@ -20,5 +20,6 @@ from backendCodingChallenge import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('translations/',views.translation_list)
+    path('translations/',views.translation_list),
+    path("translations/<int:id>", views.translation_details)
 ]
