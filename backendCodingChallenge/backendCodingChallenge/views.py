@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from django.http import JsonResponse
 from .models import Translation
 from .serializers import TranslationSerializer
@@ -6,6 +7,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from bs4 import BeautifulSoup
+from rest_framework import serializers
+
 
 
 
@@ -50,17 +53,32 @@ def translation_list(request):
         original_text = data.get('original_text')
         target_language = 'de'
         type =data.get('type')
+
+
     
 
-        if type =='HTML':
+        if type == Translation.TextType.HTML:
             translated_text = extract_and_translate(original_text,target_language)
-        elif type == 'PLAIN_TEXT':
+        elif type == Translation.TextType.PLAIN_TEXT:
             translated_text = translate_text(original_text,target_language)
+
         data['translated_text'] = translated_text
+        translation = Translation(**data)
+        try:
+                # Perform model validation
+                translation.full_clean()  # This will call the clean method
+        except ValidationError as e:
+                # If there's a validation error, raise it as a serializer validation error
+            raise serializers.ValidationError(e.message_dict)
+
+
+
+
 
 
         serializer = TranslationSerializer(data=data)
         if serializer.is_valid():
+
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
