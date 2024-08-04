@@ -21,5 +21,12 @@ from backendCodingChallenge import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('translations/',views.translation_list),
-    path("translations/<int:id>", views.translation_details)
+    path("translations/<int:id>", views.translation_details),
+    path('signup', views.signup),
+    path('login', views.login),
+    path('test_token', views.test_token),
+    path('public-view', views.public_view),
+    path('logout', views.logout),
+
+
 ]
