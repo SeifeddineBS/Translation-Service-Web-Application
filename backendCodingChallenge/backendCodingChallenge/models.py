@@ -19,7 +19,7 @@ class Translation (models.Model) :
 
     original_text = models.CharField(max_length=1000)
     translated_text = models.CharField(max_length=1000)
-    user = models.CharField(max_length=20)
+    user = models.CharField(max_length=200)
     # add timestamp
 
     def __str__ (self):
