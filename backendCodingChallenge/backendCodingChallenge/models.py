@@ -1,4 +1,8 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+import re
+
+
 
 
 class Translation (models.Model) :
@@ -20,3 +24,18 @@ class Translation (models.Model) :
 
     def __str__ (self):
         return self.translated_text
+    
+    def clean(self):
+        super().clean()
+
+        if self.type == Translation.TextType.HTML:
+            if not self.is_html(self.original_text):
+                raise ValidationError('When type is HTML, the original text must be valid HTML content.')
+
+        elif self.type == Translation.TextType.PLAIN_TEXT:
+            if self.is_html(self.original_text):
+                raise ValidationError('When type is Plain Text, the original text must not contain HTML.')
+
+    def is_html(self, text):
+        html_tag_pattern = re.compile(r'<[^>]+>')
+        return bool(html_tag_pattern.search(text))
