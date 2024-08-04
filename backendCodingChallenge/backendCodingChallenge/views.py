@@ -15,6 +15,9 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
+from concurrent.futures import ThreadPoolExecutor
+
+
 
 
 
@@ -31,22 +34,23 @@ def translate_text(text, target_language):
 
 def extract_and_translate(html_content, target_language):
     soup = BeautifulSoup(html_content, 'html.parser')
+    
+    # Collect all text nodes that need to be translated
+    text_nodes = [node for node in soup.find_all(string=True) if node.strip()]
 
-    # Extract text within <span> tags
-    spans = soup.find_all('span')
-    translations = {}
-    for span in spans:
-        if span.string:
-            original_text = span.string.strip()
-            translated_text = translate_text(original_text, target_language)
-            translations[original_text] = translated_text
-
-    # Replace original text with translated text in the soup object
-    for span in spans:
-        if span.string and span.string.strip() in translations:
-            span.string.replace_with(translations[span.string.strip()])
-
+    # Define a function to translate and replace text in the node
+    def translate_and_replace(text_node):
+        original_text = text_node.strip()
+        translated_text = translate_text(original_text, target_language)
+        text_node.replace_with(translated_text)
+    
+    # Use ThreadPoolExecutor to parallelize the translation
+    with ThreadPoolExecutor() as executor:
+        list(executor.map(translate_and_replace, text_nodes))
+    
     return str(soup)
+
+
 
 @api_view(['GET','POST'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
