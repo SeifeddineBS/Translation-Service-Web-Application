@@ -11,10 +11,17 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv # type: ignore
 import os 
+from tempfile import NamedTemporaryFile
+import base64
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Load environment variables from the .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,15 +30,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-94bgigk$ul&b7xy!_^j8a8*xdr5y8+6^e+r%jq=&$5*^mv!h2+'
 # add google Cloud credentails
-# Base directory of the project
-BASE_DIR = Path(__file__).resolve().parent.parent
-GOOGLE_APPLICATION_CREDENTIALS_PATH = BASE_DIR / 'credentials.json'
 
-if not GOOGLE_APPLICATION_CREDENTIALS_PATH.exists():
-    raise FileNotFoundError(f"Google Cloud credentials file not found at {GOOGLE_APPLICATION_CREDENTIALS_PATH}")
+# Decode the Base64 string
+credentials_b64 = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_B64')
 
+if credentials_b64:
+    credentials_json = base64.b64decode(credentials_b64).decode()
+    with NamedTemporaryFile(delete=False, mode='w', suffix='.json') as temp_credentials_file:
+        temp_credentials_file.write(credentials_json)
+        temp_credentials_path = temp_credentials_file.name
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(GOOGLE_APPLICATION_CREDENTIALS_PATH)
+    # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the temporary file path
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = temp_credentials_path
 
 
 
