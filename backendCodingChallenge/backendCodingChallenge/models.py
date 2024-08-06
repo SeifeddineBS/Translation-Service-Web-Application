@@ -3,8 +3,6 @@ from django.core.exceptions import ValidationError
 import re
 
 
-
-
 class Translation (models.Model) :
 
     class TextType(models.TextChoices):
@@ -20,7 +18,8 @@ class Translation (models.Model) :
     original_text = models.CharField(max_length=1000)
     translated_text = models.CharField(max_length=1000)
     user = models.CharField(max_length=200)
-    # add timestamp
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__ (self):
         return self.translated_text
