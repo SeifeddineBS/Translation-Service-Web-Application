@@ -94,12 +94,7 @@ def translation_list(request):
         except ValidationError as e:
                 # If there's a validation error, raise it as a serializer validation error
             raise serializers.ValidationError(e.message_dict)
-
-
-
-
-
-
+        
         serializer = TranslationSerializer(data=data)
         if serializer.is_valid():
 
@@ -157,22 +152,8 @@ def test_token(request):
 
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
-def public_view(request):
-    return Response("This view does not require authentication.")
-
-
-
-
-@api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def logout(request):
     request.user.auth_token.delete()
     return Response({"User logged out "},status=status.HTTP_200_OK)
-
-    
-
-    
-    
