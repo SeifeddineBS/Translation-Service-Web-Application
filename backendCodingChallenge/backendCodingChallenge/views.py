@@ -72,7 +72,13 @@ def translation_list(request):
         # Handle POST request to create a new translation
         data = request.data.copy() 
         original_text = data.get('original_text') 
-        target_language = 'de'  
+        target_language = data.get('target_language')
+
+        # Check if the target language is supported
+        SUPPORTED_LANGUAGES = translate.Client().get_languages()
+        if not any(item['language'] == target_language for item in SUPPORTED_LANGUAGES):
+            return Response({"error": "Unsupported target language."}, status=status.HTTP_400_BAD_REQUEST)
+
         text_type = data.get('type') 
         
         # Translate the original text based on its type

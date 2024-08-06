@@ -19,6 +19,7 @@ class Translation (models.Model) :
     original_text = models.CharField(max_length=1000)
     translated_text = models.CharField(max_length=1000)
     user = models.CharField(max_length=200)
+    target_language = models.CharField(max_length=3)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
