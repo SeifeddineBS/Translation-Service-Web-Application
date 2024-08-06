@@ -59,7 +59,8 @@ def translation_list(request):
         if 'user' in request.query_params:
             user_id = request.query_params.get('user')
             if str(user.id) != user_id:  # Ensure the user can only access their own translations
-                raise ValidationError('You can only access translations created by yourself.')
+                return Response({"error": "You can only access translations created by yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
             translations = Translation.objects.filter(user=user_id)
         else:
             translations = Translation.objects.all()
