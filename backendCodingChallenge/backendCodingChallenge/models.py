@@ -10,6 +10,7 @@ class Translation (models.Model) :
         PLAIN_TEXT = 'PLAIN_TEXT', 'PLAIN_TEXT'
 
     type = models.CharField(
+        #Text type choices
         max_length=10,
         choices=TextType.choices,
         default=TextType.PLAIN_TEXT
@@ -25,6 +26,7 @@ class Translation (models.Model) :
         return self.translated_text
     
     def clean(self):
+        #Validate text type
         super().clean()
 
         if self.type == Translation.TextType.HTML:
@@ -36,5 +38,6 @@ class Translation (models.Model) :
                 raise ValidationError('When type is Plain Text, the original text must not contain HTML.')
 
     def is_html(self, text):
+        #Check for HTML tags
         html_tag_pattern = re.compile(r'<[^>]+>')
         return bool(html_tag_pattern.search(text))
