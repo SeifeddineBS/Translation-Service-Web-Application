@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class TranslationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Translation
-        fields = ['id','original_text','translated_text','type','user']
+        fields = ['id', 'original_text', 'translated_text', 'type', 'user', 'created_at', 'updated_at']
 
 
 class UserSerializer(serializers.ModelSerializer):
