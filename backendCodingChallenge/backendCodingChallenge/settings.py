@@ -3,7 +3,7 @@ from dotenv import load_dotenv # type: ignore
 import os 
 from tempfile import NamedTemporaryFile
 import base64
-
+import dj_database_url # type: ignore
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,6 +35,7 @@ if credentials_b64:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+ENVIRONMENT=os.environ.get('ENVIRONMENT')
 
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS =[ 'https://202406-backend-coding-challenge-production.up.railway.app/']
@@ -104,6 +105,12 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+POSTEGRES_LOCALLY=False
+if ENVIRONMENT == 'production' or POSTEGRES_LOCALLY == False:
+    DATABASES['default']=dj_database_url.parse(os.environ.get('DATABASE_URL'))
+
+
 
 
 # Password validation
