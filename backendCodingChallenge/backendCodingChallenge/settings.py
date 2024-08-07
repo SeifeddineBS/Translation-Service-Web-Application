@@ -37,6 +37,7 @@ if credentials_b64:
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS =[ 'https://202406-backend-coding-challenge-production.up.railway.app/']
 
 
 # Application definition
