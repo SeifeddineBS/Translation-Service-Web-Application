@@ -3,13 +3,17 @@ from dotenv import load_dotenv # type: ignore
 import os 
 from tempfile import NamedTemporaryFile
 import base64
-
+import dj_database_url # type: ignore
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from the .env file
 load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+
+def env(variable_name, default_value=None):
+    return os.environ.get(variable_name, default_value)
 
 
 # Quick-start development settings - unsuitable for production
@@ -20,7 +24,7 @@ SECRET_KEY = 'django-insecure-94bgigk$ul&b7xy!_^j8a8*xdr5y8+6^e+r%jq=&$5*^mv!h2+
 # add google Cloud credentails
 
 # Decode the Base64 string
-credentials_b64 = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_B64')
+credentials_b64 = env('GOOGLE_APPLICATION_CREDENTIALS_B64')
 
 if credentials_b64:
     credentials_json = base64.b64decode(credentials_b64).decode()
@@ -34,9 +38,11 @@ if credentials_b64:
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+ENVIRONMENT=env('ENVIRONMENT')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['backend-coding-challenge.up.railway.app','127.0.0.1','localhost']
+CSRF_TRUSTED_ORIGINS =[ 'https://202406-backend-coding-challenge-production.up.railway.app/']
 
 
 # Application definition
@@ -103,6 +109,21 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+POSTGRES_LOCALLY = False 
+if ENVIRONMENT == 'production' or POSTGRES_LOCALLY:
+    DATABASES = {
+        'default': dj_database_url.parse(env('DATABASE_URL'))
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+
+
 
 
 # Password validation
