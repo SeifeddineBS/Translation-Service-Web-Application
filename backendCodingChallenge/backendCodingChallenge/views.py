@@ -1,38 +1,34 @@
-from urllib import response
-from django import views
-from django.forms import ValidationError
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
-from rest_framework.response import Response
-from rest_framework import status, serializers
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.models import Token
-from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Dict, List, Optional
 from bs4 import BeautifulSoup
 from google.cloud import translate_v2 as translate
-from .models import Translation
+from concurrent.futures import ThreadPoolExecutor
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.response import Response
+from rest_framework import status, serializers
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from rest_framework.authtoken.models import Token
+from .models import Translation, User
 from .serializers import TranslationSerializer, UserSerializer
 
-# Google Translate API function
+# Function to translate text
 def translate_text(text: str, target_language: str) -> str:
     translate_client = translate.Client()
     result = translate_client.translate(text, target_language=target_language)
     return result['translatedText']
 
-
-
-def extract_and_translate( html_content: str, target_language: str) -> str: 
-    
+# Function to extract and translate text within HTML content
+def extract_and_translate(html_content: str, target_language: str) -> str:
     soup = BeautifulSoup(html_content, 'html.parser')
     
     # Collect all text nodes that need to be translated
-    text_nodes = [node for node in soup.find_all(string=True) if node.strip()]
+    text_nodes: List[str] = [node for node in soup.find_all(string=True) if node.strip()]
 
     # Define a function to translate and replace text in the node
-    def translate_and_replace(text_node):
+    def translate_and_replace(text_node: str) -> None:
         original_text = text_node.strip()
         translated_text = translate_text(original_text, target_language)
         text_node.replace_with(translated_text)
@@ -43,18 +39,11 @@ def extract_and_translate( html_content: str, target_language: str) -> str:
     
     return str(soup)
 
-
-
 # View to handle both listing translations and creating new translations
 @api_view(['GET', 'POST'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def translation_list(request: views.Request) -> response.Response:
-    
-    """
-    GET request: List all translations or filter by the currently authenticated user.
-    POST request: Create a new translation with the provided original text and type.
-    """
+def translation_list(request: Any) -> Response:
     if request.method == 'GET':
         # Handle GET request to list translations
         user = request.user  # Get the currently authenticated user
@@ -75,20 +64,20 @@ def translation_list(request: views.Request) -> response.Response:
     
     elif request.method == 'POST':
         # Handle POST request to create a new translation
-        data = request.data.copy() 
-        original_text = data.get('original_text') 
-        target_language = data.get('target_language')
+        data: Dict[str, Any] = request.data.copy()
+        original_text: str = data.get('original_text')
+        target_language: str = data.get('target_language')
 
         # Check if the target language is supported
-        SUPPORTED_LANGUAGES = translate.Client().get_languages()
+        SUPPORTED_LANGUAGES: List[Dict[str, str]] = translate.Client().get_languages()
         if not any(item['language'] == target_language for item in SUPPORTED_LANGUAGES):
             return Response({"error": "Unsupported target language."}, status=status.HTTP_400_BAD_REQUEST)
 
-        text_type = data.get('type') 
-        
+        text_type: str = data.get('type')
+
         # Translate the original text based on its type
         if text_type == Translation.TextType.HTML:
-            translated_text = extract_and_translate(original_text, target_language)
+            translated_text: str = extract_and_translate(original_text, target_language)
         elif text_type == Translation.TextType.PLAIN_TEXT:
             translated_text = translate_text(original_text, target_language)
         
@@ -116,24 +105,24 @@ def translation_list(request: views.Request) -> response.Response:
 @api_view(['GET','DELETE'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def translation_details(request: views.Request, id: int) -> response.Response:
+def translation_details(request: Any, id: int) -> Response:
     try:
         translation = Translation.objects.get(pk=id)
     except Translation.DoesNotExist:
-        return Response(status = status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         serializer = TranslationSerializer(translation)
         return Response(serializer.data)
     elif request.method == 'DELETE':
         translation.delete()
-        return Response(status = status.HTTP_204_NO_CONTENT)
-    
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 # User signup view
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
-def signup(request: views.Request) -> response.Response:
+def signup(request: Any) -> Response:
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -148,7 +137,7 @@ def signup(request: views.Request) -> response.Response:
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
-def login(request: views.Request) -> response.Response:
+def login(request: Any) -> Response:
     user = get_object_or_404(User, username=request.data['username'])
     if not user.check_password(request.data['password']):
         return Response("missing user", status=status.HTTP_404_NOT_FOUND)
@@ -161,13 +150,13 @@ def login(request: views.Request) -> response.Response:
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def test_token(request):
+def test_token(request: Any) -> Response:
     return Response("passed!")
 
 # User logout view
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def logout(request: views.Request) -> response.Response:
+def logout(request: Any) -> Response:
     request.user.auth_token.delete()
     return Response({"User logged out"}, status=status.HTTP_200_OK)
