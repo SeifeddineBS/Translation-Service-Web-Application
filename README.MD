@@ -117,28 +117,33 @@ This Django-based web application provides translation services using the Google
    git clone https://github.com/SeifeddineBS/202406-backend-coding-challenge.git
    ```
 
-2. **Set up a virtual environment**:
+2. **Navigate into the project directory**:
+   ```bash
+   cd backendCodingChallenge
+   ```
+
+3. **Set up a virtual environment**:
    ```bash
    python3 -m venv venv
    source venv/bin/activate
    ```
 
-3. **Install the required packages**:
+4. **Install the required packages**:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Set up environment variables**:
+5. **Set up environment variables**:
    - Create a `.env` file in the project root directory
    - **Note**: The `.env` can be found at [[This Link](https://drive.google.com/file/d/14FtzT3nxI4g6JGqINJd6OPZEXDRxIoh9/view?usp=sharing)].
 
-5. **Apply migrations**:
+6. **Apply migrations**:
    ```bash
    python manage.py migrate
    ```
 
 
-6. **Run the development server**:
+7. **Run the development server**:
    ```bash
    python manage.py runserver
    ```
