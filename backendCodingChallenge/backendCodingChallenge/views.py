@@ -1,3 +1,5 @@
+from urllib import response
+from django import views
 from django.forms import ValidationError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -15,14 +17,15 @@ from .models import Translation
 from .serializers import TranslationSerializer, UserSerializer
 
 # Google Translate API function
-def translate_text(text, target_language):
+def translate_text(text: str, target_language: str) -> str:
     translate_client = translate.Client()
     result = translate_client.translate(text, target_language=target_language)
     return result['translatedText']
 
 
 
-def extract_and_translate(html_content, target_language):
+def extract_and_translate( html_content: str, target_language: str) -> str: 
+    
     soup = BeautifulSoup(html_content, 'html.parser')
     
     # Collect all text nodes that need to be translated
@@ -46,7 +49,8 @@ def extract_and_translate(html_content, target_language):
 @api_view(['GET', 'POST'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def translation_list(request):
+def translation_list(request: views.Request) -> response.Response:
+    
     """
     GET request: List all translations or filter by the currently authenticated user.
     POST request: Create a new translation with the provided original text and type.
@@ -112,7 +116,7 @@ def translation_list(request):
 @api_view(['GET','DELETE'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def translation_details(request,id):
+def translation_details(request: views.Request, id: int) -> response.Response:
     try:
         translation = Translation.objects.get(pk=id)
     except Translation.DoesNotExist:
@@ -129,7 +133,7 @@ def translation_details(request,id):
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
-def signup(request):
+def signup(request: views.Request) -> response.Response:
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -144,7 +148,7 @@ def signup(request):
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
-def login(request):
+def login(request: views.Request) -> response.Response:
     user = get_object_or_404(User, username=request.data['username'])
     if not user.check_password(request.data['password']):
         return Response("missing user", status=status.HTTP_404_NOT_FOUND)
@@ -164,6 +168,6 @@ def test_token(request):
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def logout(request):
+def logout(request: views.Request) -> response.Response:
     request.user.auth_token.delete()
     return Response({"User logged out"}, status=status.HTTP_200_OK)
