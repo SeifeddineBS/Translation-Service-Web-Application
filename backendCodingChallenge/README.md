@@ -1,49 +1,150 @@
-# SUMM AI Backend Coding Challenge 👩‍💻🚀
+# # # Project Overview
 
-Welcome to the SUMM AI Backend Coding Challenge! 🎉 In this challenge, you will be tasked with building a Django API that performs text translation for both HTML and plain text inputs. 🌐📝
+# This project is a Django-based web application that provides translation services. 
+# The application allows users to sign up, log in, and access a set of APIs to translate text 
+# or HTML content into different languages using the Google Cloud Translation API. 
+# The application is deployed at [Your Deployed Website Link].
 
-## 🎯 Goal
+# # # Features
 
-Your mission, should you choose to accept it, is to create a Django API capable of translating text provided in HTML or plain text format. Your API should serve as a bridge between users and a third-party translation service.
+# - **User Authentication**: Users can sign up, log in, and log out. Authentication is handled using session and token-based mechanisms.
+# - **Translation Services**: Users can submit plain text or HTML content for translation into supported languages.
+# - **Translation Management**: Users can view, list, and delete their translation requests.
 
-## 🔑 Requirements
+# # # API Endpoints
 
-To successfully complete this challenge, make sure your Django API adheres to the following requirements:
+# ### 1. **User Signup**
+# - **URL**: `/signup/`
+# - **Method**: `POST`
+# - **Request Body**:
+# ```json
+# {
+#     "username": "string",
+#     "email": "string",
+#     "password": "string"
+# }
+# ```
+# - **Response**:
+# - On success: `{ "token": "your_token", "user": { "username": "string", "email": "string" } }`
+# - On failure: Validation errors.
 
-- **Text Translation**: Your API should receive input text, translate it using a third-party API, and return the translated text to the user.
+# ### 2. **User Login**
+# - **URL**: `/login/`
+# - **Method**: `POST`
+# - **Request Body**:
+# ```json
+# {
+#     "username": "string",
+#     "password": "string"
+# }
+# ```
+# - **Response**:
+# - On success: `{ "token": "your_token", "user": { "username": "string", "email": "string" } }`
+# - On failure: `{"missing user"}`.
 
-- **Content Type Specification**: Implement an attribute in your API where users can specify the content type of the input text (e.g., HTML, plain text, etc.). You can name this attribute as you prefer.
+# ### 3. **User Logout**
+# - **URL**: `/logout/`
+# - **Method**: `GET`
+# - **Response**: `{ "User logged out" }`
 
-- **HTML Handling**: When the input text is in HTML format, preserve all outer tags (such as h1, h2, p, etc.), while translating only the inner text portions. This ensures that the document structure remains intact.
+# ### 4. **List and Create Translations**
+# - **URL**: `/translation/`
+# - **Method**: `GET` or `POST`
+# - **GET Parameters**:
+# - `user` (optional): Filter translations by user ID.
+# - **POST Request Body**:
+# ```json
+# {
+#     "original_text": "string",
+#     "target_language": "string",
+#     "type": "HTML" or "PLAIN_TEXT"
+# }
+# ```
+# - **Response**:
+# - On GET: `{ "Translations": [ { ...translation_data... }, ... ] }`
+# - On POST: Created translation object or validation errors.
 
-- **Performance**: Especially for HTML translations you should try to parallelize the translations of the texts to avoid sequential delays of single text translations.
+# ### 5. **Translation Details and Deletion**
+# - **URL**: `/translation/<id>/`
+# - **Method**: `GET` or `DELETE`
+# - **Response**:
+# - On GET: Translation object.
+# - On DELETE: Status 204 (No Content).
 
-- **User Associations**: Attach translations to specific users so that each user's translations can be tracked and retrieved.
+# ### 6. **Test Token**
+# - **URL**: `/test-token/`
+# - **Method**: `GET`
+# - **Response**: `"passed!"`
 
-- **Translation Retrieval**: Provide a feature in your API to fetch all translations associated with a particular user.
+# ### 7. **Public View**
+# - **URL**: `/public-view/`
+# - **Method**: `GET`
+# - **Response**: `"This view does not require authentication."`
 
-### 📜 Example: Translating Inner Parts
+# # # Environment Setup
 
-Let's illustrate the HTML handling and translation process with an example input:
+# ### Prerequisites
+# - Python 3.x
+# - Django
+# - Django Rest Framework
+# - Google Cloud Translate API
 
-```html
-"<div><h2 class='editor-heading-h2' dir='ltr'><span>hallo1 as headline</span></h2><p class='editor-paragraph' dir='ltr'><br></p><p class='editor-paragraph' dir='ltr'><span>hallo2 as paragraph</span></p><p class='editor-paragraph' dir='ltr'><span>hallo3 as paragraph with </span><b><strong class='editor-text-bold'>bold</strong></b><span> inline</span></p></div>"
-```
+# ### Installation
 
-In this case, your API should extract the following three text portions for translation:
+# 1. **Clone the repository**:
+# ```bash
+# git clone https://github.com/your-repo-link.git
+# cd your-repo-link
+# ```
 
-1. `<span>hallo1 as headline</span>`
-2. `<span>hallo2 as paragraph</span>`
-3. `<span>hallo3 as paragraph with </span><b><strong class='editor-text-bold'>bold</strong></b><span> inline</span>`
+# 2. **Set up a virtual environment**:
+# ```bash
+# python3 -m venv venv
+# source venv/bin/activate
+# ```
 
-After translation, these segments should be reassembled into the original HTML structure, preserving the tags.
+# 3. **Install the required packages**:
+# ```bash
+# pip install -r requirements.txt
+# ```
 
-## 🌟 Ready to Begin?
+# 4. **Set up environment variables**:
+# - Create a `.env` file in the project root directory with the following content:
+# ```
+# GOOGLE_APPLICATION_CREDENTIALS_B64=<Your Google Credentials in Base64>
+# ```
 
-You're all set to tackle the SUMM AI Backend Coding Challenge! Build a robust API that fulfills these requirements and showcases your coding skills. Happy coding! 🚀👨‍💻👩‍💻
+# - **Note**: The `GOOGLE_APPLICATION_CREDENTIALS_B64` can be found at [Your Credential Link].
 
-## Submission
-Please clone this repository and upload it to a new private repo.
-Implement a well-organized codebase along with a README documenting the setup, key findings, and challenges.  
-Add me (@flowni) to the repo for submitting it.
-You have one week to complete the assignment. ⏰
+# 5. **Apply migrations**:
+# ```bash
+# python manage.py migrate
+# ```
+
+# 6. **Create a superuser** (optional):
+# ```bash
+# python manage.py createsuperuser
+# ```
+
+# 7. **Run the development server**:
+# ```bash
+# python manage.py runserver
+# ```
+
+# 8. **Access the application**:
+# - Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser to test the application locally.
+
+# # # Deployment
+
+# The application is deployed at [Your Deployed Website Link]. You can access the public APIs and test the application through this link.
+
+# # # Testing the APIs
+
+# You can test the APIs using tools like [Postman](https://www.postman.com/) or [cURL](https://curl.se/). Ensure that you provide the required authentication token in the headers for protected endpoints.
+
+# # # Contact
+
+# For any issues or questions, please contact [Your Name] at [Your Email Address].
+
+# ---
+# **Note**: Ensure to replace placeholders like `Your Deployed Website Link`, `your-repo-link`, `Your Google Credentials in Base64`, etc., with the actual values relevant to your project.
