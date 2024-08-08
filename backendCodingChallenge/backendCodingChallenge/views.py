@@ -11,8 +11,9 @@ from rest_framework import status, serializers
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework.authtoken.models import Token
-from .models import Translation, User
+from .models import Translation
 from .serializers import TranslationSerializer, UserSerializer
+from django.contrib.auth.models import User
 
 # Function to translate text
 def translate_text(text: str, target_language: str) -> str:
