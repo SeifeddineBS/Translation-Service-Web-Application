@@ -41,7 +41,7 @@ if credentials_b64:
 DEBUG = False
 ENVIRONMENT=env('ENVIRONMENT')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://backend-coding-challenge.up.railway.app','127.0.0.1','localhost']
 CSRF_TRUSTED_ORIGINS =[ 'https://202406-backend-coding-challenge-production.up.railway.app/']
 
 
